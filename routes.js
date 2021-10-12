@@ -7,9 +7,11 @@ route.get('/v1/users/:id', (req, res, next) => {
   if (id === '1') {
     return res.status(200).json({ name: 'foo' })
   } else if (id === '2') {
+    // this should be handled by user error handler
     return next(new Error('v1-users: User inactive'))
   }
-  
+
+  // this should be handled by "global" error handler
   return next(new Error('User not found'))
 })
 
@@ -17,11 +19,10 @@ route.get('/v1/users', (req, res, next) => {
   return res.status(200).json([{name: 'foo'}, {name: 'bar'}])
 })
 
-
 route.use((err, req, res, next) => {
   if (/(v1\-users\:)(.*)/ig.test(err.message)) {
     return res.status(200).json({
-      error: 'something wrong at /v1/users: ' + err.message,
+      error: 'something wrong ' + err.message,
     })
   }
 
